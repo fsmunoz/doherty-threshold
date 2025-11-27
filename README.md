@@ -32,6 +32,7 @@ This project contains
 2. **A Go implementation of BubbleSort and MergeSort**, plus an HTTP server wrapper around them.
 3. **Prometheus configuration** to centralise the metrics, and a **Grafana dashboard** to view them
 ![Grafana preview](docs/images/grafana_tn.png)
+4. **Local, docker, and Kubernetes** deployment options, simplified through Makefile targets
 ```shell
 $ make docker-status 
 NAME          IMAGE                           COMMAND                  SERVICE       CREATED         STATUS         PORTS
@@ -41,7 +42,6 @@ merge-sort    doherty-threshold-merge-sort    "/sort-merge"            merge-sor
 prometheus    prom/prometheus:latest          "/bin/prometheus --c…"   prometheus    6 minutes ago   Up 6 minutes   0.0.0.0:19090->9090/tcp, [::]:19090->9090/tcp
 ui            doherty-threshold-ui            "/sort-ui"               ui            6 minutes ago   Up 6 minutes   0.0.0.0:13001->8080/tcp, [::]:13001->8080/tcp
 ```
-4. **Local, docker, and Kubernetes** deployment options, simplified through Makefile targets
 5. **A web app** ([also publicly available](https://big-o.interlaye.red/), with a matching "Halt and Catch
    Fire" theme and some old-skool tracker music =) ), built with [Datastar](https://data-star.dev/) hypermedia
    framework and the Go SDK, that uses the Go code and shows the time each merge algorithm works, allowing a
