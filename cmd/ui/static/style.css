@@ -1,0 +1,211 @@
+/* Terminal/CRT Aesthetic - Big-O in Practice */
+
+:root {
+  --bg: #000;
+  --bg-alt: #001100;
+  --text: #0f0;
+  --accent: #f0f;
+  --highlight: #fff;
+  --muted: #666;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+blockquote {
+    white-space: pre-wrap;
+}
+
+body {
+  /* background: var(--bg); */
+  background-image:url('./halt-and-catch-fire.webp');
+  background-attachment:fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-color: rgba(100,00,100,.9);
+  background-blend-mode: multiply;
+  color: var(--text);
+  font-family: ui-monospace, 'Iosevka Aile', monospace;
+  padding: 2rem;
+  min-height: 100vh;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.card {
+  border: 1px solid var(--text);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: var(--bg-alt);
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+select {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+button {
+  width: 100%;
+  padding: 0.75rem;
+  background: #002200;
+  color: var(--text);
+  border: 1px solid var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #003300;
+}
+
+.result {
+  border: 1px solid var(--text);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.result h3 {
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.result .size {
+  color: var(--muted);
+  margin: 0.25rem 0;
+}
+
+.result .duration {
+  font-size: 1.5rem;
+  color: var(--highlight);
+  margin: 0.5rem 0;
+}
+
+.result.loading {
+  color: var(--muted);
+}
+
+.result.success .duration {
+  color: var(--text);
+}
+
+.result.medium .duration {
+  color: #ff0;
+}
+
+.result.slow .duration {
+  color: #f00;
+}
+
+.info {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--text);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.info h4 {
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.info p {
+  line-height: 1.5;
+}
+
+.complexity {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1rem;
+}
+
+.complexity div {
+  text-align: center;
+}
+
+.algo-name {
+  margin-bottom: 0.25rem;
+}
+
+.algo-complexity {
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--muted);
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 1rem auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+#mod-mini {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  background: #000;
+  border: 1px solid #0f0;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+    box-shadow: 0 0 6px #0f04;
+}
+
+#mod-toggle {
+  background: #000;
+  color: #0f0;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+    font-family: ui-monospace, monospace;
+    background-color: rgba(0,0,0,0);    
+}
+
+#mod-toggle:hover {
+  background: #001000;
+}

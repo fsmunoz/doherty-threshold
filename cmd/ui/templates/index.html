@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big-O in Practice</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-RC.6/bundles/datastar.js"></script>
+</head>
+<body>
+  <div id="mod-mini">
+  <button id="mod-toggle">▶</button>
+</div>
+
+<script type="module">
+    import { ModPlayer } from 'https://atornblad.se/files/js-mod-player/player.js';
+
+    const audio = new AudioContext();
+    const player = new ModPlayer(audio);
+    let isPlaying = false;
+
+    (async () => {
+        await player.load('/static/4mat-l-f-f.mod');
+    })();
+
+    const btn = document.getElementById('mod-toggle');
+
+    btn.addEventListener('click', () => {
+        if (!isPlaying) {
+            player.play();
+            btn.textContent = "■";   // stop icon
+        } else {
+            player.stop();
+            btn.textContent = "▶";   // play icon
+        }
+        isPlaying = !isPlaying;
+    });
+</script>
+
+    <h1>Big-O in Practice</h1>
+    <p class="subtitle">Experience the difference between O(n^2) and O(n log n)</p>
+    <blockquote>
+      > System response time?
+      > 403 milliseconds.
+      > There goes the Doherty Threshold.
+    </blockquote>
+    <p> -- Halt and Catch Fire, Episode 7: "Giant"</p>
+    <br>
+    <div class="card" data-signals:algorithm="'bubble'" data-signals:size="'1000'">
+        <div class="form-group">
+            <label for="algorithm">&gt; Algorithm</label>
+            <select id="algorithm" data-bind:algorithm>
+                <option value="bubble">Bubble Sort (O(n^2))</option>
+                <option value="merge">Merge Sort (O(n log n))</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="size">&gt; Array Size</label>
+            <select id="size" data-bind:size>
+                {{range .Sizes}}
+                <option value="{{.}}">{{.}} elements</option>
+                {{end}}
+            </select>
+        </div>
+
+        <button
+            data-on:click="@get('/sort?algorithm=' + $algorithm + '&size=' + $size)"
+        >
+            [ Run Sort ]
+        </button>
+
+        <div class="info">
+            <h4>&gt; What to expect</h4>
+            <p>
+                Try sorting 10,000 elements with both algorithms.
+                Bubble Sort will take several seconds while Merge Sort completes instantly.
+                At 50,000 elements, the difference is even more dramatic!
+            </p>
+            <div class="complexity">
+                <div>
+                    <div class="algo-name">Bubble Sort</div>
+                    <div class="algo-complexity">O(n^2)</div>
+                </div>
+                <div>
+                    <div class="algo-name">Merge Sort</div>
+                    <div class="algo-complexity">O(n log n)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="result" class="result">
+        <p>&gt; Select an algorithm and array size, then click "Run Sort"</p>
+    </div>
+</body>
+</html>

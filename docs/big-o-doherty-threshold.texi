@@ -1,0 +1,74 @@
+@node Big-O and the Doherty Threshold
+@section Big-O: Algorithms in the Cloud Native Age
+
+@quotation
+...if it answers you back in less than 400 milliseconds, just under half a second, then you will stay glued to that machine for hours...
+@author Joe MacMillan, Halt and Catch Fire
+@end quotation
+
+@imagec{images/big_o_architecture, High-level architecture: Go services feeding Prometheus metrics to Grafana.}
+
+
+
+The **Big-O** project is an engineering exercise designed to take abstract Computer Science theory
+and make it tangible through modern Platform Engineering practices. It implements two classic
+sorting algorithms---Bubble Sort and Merge Sort---not just as functions, but as observable
+microservices.
+
+The goal is to visualize the degradation of performance in real-time, moving the concept of
+"complexity" from a textbook definition to a measurable system metric.
+
+@subsection The stack
+
+The system is built to be deployed anywhere, from a local laptop to a production Kubernetes cluster.
+
+@table @strong
+@item Go 1.23+
+The core algorithms are implemented in Go, utilizing its concurrency primitives to handle HTTP
+requests while processing sorting workloads.
+
+@item Prometheus & Grafana
+We don't just print timings to stdout. The services are instrumented to expose Prometheus metrics. A
+provisioned Grafana instance visualizes the divergence between $O(n^2)$ and $O(n \log n)$ as $N$
+increases.
+
+@item Docker & Compose
+For rapid instantiation, a `docker-compose` stack brings up the sorting services, the UI, and the
+observability stack in seconds.
+
+@item Kubernetes (Kind)
+The project includes production-ready K8s manifests. It uses liveness/readiness probes, resource
+limits, and ConfigMaps, deployable via a local Kind cluster.
+@end table
+
+@subsection Deployment Options
+
+The project utilizes a robust `Makefile` to abstract the complexity of the various deployment
+targets.
+
+@table @code
+@item make demo
+The comprehensive Docker Compose demonstration. It spins up the full stack and exposes the Grafana
+dashboards at port 13000.
+
+@item make demo-k8s
+The full Kubernetes lifecycle. It builds the Docker images, loads them into the Kind cluster,
+applies the manifests, and sets up port-forwarding for the UI and dashboards.
+
+@item make run-screen
+For local development without container overhead, this target utilizes GNU Screen to manage the
+background processes and logs.
+@end table
+
+@subsection The Interface
+
+While the backend generates the hard data, the frontend validates the **Doherty Threshold**. Built
+with **Datastar**, the UI allows users to trigger sorts of varying sizes ($N=100$ to $N=50,000$).
+
+@imagec{images/big_o_ui, The interactive UI comparison allowing users to feel the delay.}
+
+The UI provides immediate visual feedback, allowing the user to "feel" the difference between a
+400ms response (Merge Sort) and an 8-minute wait (Bubble Sort).
+
+The source code and infrastructure definitions are available at the
+@url{https://github.com/yourusername/big-o, Big-O Repository}.
