@@ -25,16 +25,17 @@ and we the run them in Docker containers with Prometheus metrics to watch them "
 then, through a user-facing web page, runs them against the **Doherty Threshold (400ms)** to demonstrate
 exactly when an inefficient algorithm breaks the "immersion".
 
-This project contains:
+This project contains
 
-1. A Jupyter notebook with a step-by-step explanation and visualisation of the merge algorithms.
+1. **A Jupyter notebook** with a step-by-step explanation and visualisation of the merge algorithms ([try it on Binder](https://mybinder.org/v2/gh/fsmunoz/doherty-threshold/d7d795025a67a618178503a98c16573a94db3207?urlpath=lab%2Ftree%2Fdocs%2Fnotebooks%2FBigO.ipynb).
 2. A Go implementation of BubbleSort and MergeSort, plus an HTTP server wrapper around them.
 3. Prometheus configuration to centralise the metrics, and a Grafana dashboard to view them
 4. Local, docker, and Kubernetes deployment options, simplified through Makefile targets
-5. A web app ([also publicly available](https://big-o.interlaye.red/), and with a matching "Halt and Catch
-   Fire" theme and some old-skool tacker music =) ), built with [Datastar](https://data-star.dev/) hypermedia
+5. A web app ([also publicly available](https://big-o.interlaye.red/), with a matching "Halt and Catch
+   Fire" theme and some old-skool tracker music =) ), built with [Datastar](https://data-star.dev/) hypermedia
    framework and the Go SDK, that uses the Go code and shows the time each merge algorithm works, allowing a
    comparison with the Doherty threshold.
+![Web preview](docs/images/web_thumbnail.png)
    
 There are many different ways to use this project, and some people will prefer the notebook, while others will
 like to check the Go code and the way it's deployed, or just [visit the

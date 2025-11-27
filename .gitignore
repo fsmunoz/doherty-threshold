@@ -1,0 +1,23 @@
+# Build output
+bin/
+
+# Test coverage
+coverage.out
+coverage.html
+
+# Benchmark output
+bench.txt
+
+# Process ID files
+*.pid
+
+# Emacs
+*~
+.\#*
+*.elc
+
+# Notebook outputs
+docs/notebooks/.ipynb_checkpoints/
+sorting-comparison.png
+benchmark_results.csv
+fitted_constants.txt
