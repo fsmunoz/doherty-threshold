@@ -42,8 +42,7 @@ merge-sort    doherty-threshold-merge-sort    "/sort-merge"            merge-sor
 prometheus    prom/prometheus:latest          "/bin/prometheus --c…"   prometheus    6 minutes ago   Up 6 minutes   0.0.0.0:19090->9090/tcp, [::]:19090->9090/tcp
 ui            doherty-threshold-ui            "/sort-ui"               ui            6 minutes ago   Up 6 minutes   0.0.0.0:13001->8080/tcp, [::]:13001->8080/tcp
 ```
-5. **A web app** ([also publicly available](https://big-o.interlaye.red/), with a matching "Halt and Catch
-   Fire" theme and some old-skool tracker music =) ), built with [Datastar](https://data-star.dev/) hypermedia
+5. **A web app** ([also publicly available](https://big-o.interlaye.red/)), built with [Datastar](https://data-star.dev/) hypermedia
    framework and the Go SDK, that uses the Go code and shows the time each merge algorithm works, allowing a
    comparison with the Doherty threshold.
 ![Web preview](docs/images/web_thumbnail.png)
@@ -99,6 +98,41 @@ make run
 make demo-screen
 # Or manually: make run-screen
 ```
+
+## Try without installing
+
+Want to try the project without cloning the repository? You can run the services directly using Go's remote package execution:
+
+### Prerequisites
+- Go 1.24+ installed
+- That's it!
+
+### Run the Web UI
+
+```bash
+# Run the interactive web UI
+go run github.com/fsmunoz/doherty-threshold/cmd/ui@latest
+
+# Then open http://localhost:8080
+```
+
+This downloads, builds, and runs the UI service instantly. You can sort arrays and see the Doherty Threshold in action.
+
+### Run the sorting services
+
+```bash
+# Terminal 1: Bubble sort service
+go run github.com/fsmunoz/doherty-threshold/cmd/bubble@latest
+
+# Terminal 2: Merge sort service (on different port)
+PORT=8081 go run github.com/fsmunoz/doherty-threshold/cmd/merge@latest
+```
+
+Access metrics at:
+- Bubble sort: http://localhost:8080/metrics
+- Merge sort: http://localhost:8081/metrics
+
+**Note**: This runs the services with embedded code. For the full experience with Prometheus metrics and Grafana dashboards, see the deployment options below.
 
 ## Deployment options
 
@@ -447,15 +481,6 @@ A commented `tree` output to help navigate the code base:
 - **Monitoring**: Prometheus + Grafana
 - **Experimentation**: Jupyter notebook + Python
 - **Web**: Datastar hypermedia framework, Go SDK.
-
-
-
-
-Perfect for:
-- Learning Big-O notation visually
-- Understanding container orchestration
-- Practicing Kubernetes deployments
-- Portfolio demonstration of platform engineering skills
 
 ## License
 
