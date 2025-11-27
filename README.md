@@ -69,7 +69,7 @@ Bubble Sort break the 400ms threshold?**
 
 ## Quick start
 
-### Option 1: Docker Compose (aasiest)
+### Option 1: Docker Compose (simplest)
 
 ```bash
 make demo
