@@ -9,7 +9,7 @@
 # Most things use a [OK]/[FAIL]/[INFO]/[...] prefix, plus some mild
 # ASCII separators.
 
-.PHONY: all build test bench notebook run stop status run-screen attach-screen stop-screen screen-status docker-up docker-down logs logs-ui clean deps fmt lint vet k8s-build k8s-deploy k8s-delete k8s-status k8s-logs k8s-logs-ui k8s-port-forward help
+.PHONY: all build test bench notebook run stop status run-screen attach-screen stop-screen screen-status docker-up docker-down logs logs-ui clean deps fmt lint vet k8s-build k8s-build-kind k8s-build-k3s k8s-deploy k8s-delete k8s-status k8s-logs k8s-logs-ui k8s-port-forward help
 
 # Variables
 #=============================================================================
@@ -26,6 +26,17 @@ UI_PORT := 8082
 
 # Screen session name
 SCREEN_SESSION := big-o-demo
+
+# Kubernetes platform (kind or k3s)
+K8S_PLATFORM ?= kind
+
+# Registry configuration
+K3S_REGISTRY ?= localhost:5000
+
+# Image names
+BUBBLE_IMAGE := bubble-sort:latest
+MERGE_IMAGE := merge-sort:latest
+UI_IMAGE := ui:latest
 
 # Go build flags
 LDFLAGS := -w -s
@@ -325,28 +336,48 @@ clean-all: clean
 # Kubernetes Operations
 #=============================================================================
 
-# Build Docker images for Kubernetes and load into kind
-k8s-build:
-	@echo "[K8S] Building Docker images for Kubernetes..."
-	@echo "  Building bubble-sort:latest..."
-	@docker build -t bubble-sort:latest -f cmd/bubble/Dockerfile . || exit 1
-	@echo "  Building merge-sort:latest..."
-	@docker build -t merge-sort:latest -f cmd/merge/Dockerfile . || exit 1
-	@echo "  Building ui:latest..."
-	@docker build -t ui:latest -f cmd/ui/Dockerfile . || exit 1
-	@echo "[OK] Docker images built!"
+# Build Docker images for kind (local load)
+k8s-build-kind:
+	@echo "[K8S-KIND] Building Docker images..."
+	@echo "  Building $(BUBBLE_IMAGE)..."
+	@docker build -t $(BUBBLE_IMAGE) -f cmd/bubble/Dockerfile . || exit 1
+	@echo "  Building $(MERGE_IMAGE)..."
+	@docker build -t $(MERGE_IMAGE) -f cmd/merge/Dockerfile . || exit 1
+	@echo "  Building $(UI_IMAGE)..."
+	@docker build -t $(UI_IMAGE) -f cmd/ui/Dockerfile . || exit 1
+	@echo "[OK] Images built!"
 	@echo ""
-	@echo "[K8S] Loading images into kind cluster..."
-	@kind load docker-image bubble-sort:latest || { echo "[WARN] Failed to load bubble-sort image. Is kind running?"; exit 1; }
-	@kind load docker-image merge-sort:latest || { echo "[WARN] Failed to load merge-sort image. Is kind running?"; exit 1; }
-	@kind load docker-image ui:latest || { echo "[WARN] Failed to load ui image. Is kind running?"; exit 1; }
+	@echo "[K8S-KIND] Loading images into kind..."
+	@kind load docker-image $(BUBBLE_IMAGE) || { echo "[FAIL] Failed to load image. Is kind running?"; exit 1; }
+	@kind load docker-image $(MERGE_IMAGE) || { echo "[FAIL] Failed to load image. Is kind running?"; exit 1; }
+	@kind load docker-image $(UI_IMAGE) || { echo "[FAIL] Failed to load image. Is kind running?"; exit 1; }
 	@echo "[OK] Images loaded into kind!"
 
-# Deploy to Kubernetes
-# Assumes kubectl works
+# Build Docker images for k3s (push to registry)
+k8s-build-k3s:
+	@echo "[K8S-K3S] Building and pushing Docker images..."
+	@echo "  Building $(K3S_REGISTRY)/$(BUBBLE_IMAGE)..."
+	@docker build -t $(K3S_REGISTRY)/$(BUBBLE_IMAGE) -f cmd/bubble/Dockerfile . || exit 1
+	@echo "  Building $(K3S_REGISTRY)/$(MERGE_IMAGE)..."
+	@docker build -t $(K3S_REGISTRY)/$(MERGE_IMAGE) -f cmd/merge/Dockerfile . || exit 1
+	@echo "  Building $(K3S_REGISTRY)/$(UI_IMAGE)..."
+	@docker build -t $(K3S_REGISTRY)/$(UI_IMAGE) -f cmd/ui/Dockerfile . || exit 1
+	@echo "[OK] Images built!"
+	@echo ""
+	@echo "[K8S-K3S] Pushing images to $(K3S_REGISTRY)..."
+	@docker push $(K3S_REGISTRY)/$(BUBBLE_IMAGE) || { echo "[FAIL] Failed to push. Is registry running?"; exit 1; }
+	@docker push $(K3S_REGISTRY)/$(MERGE_IMAGE) || { echo "[FAIL] Failed to push. Is registry running?"; exit 1; }
+	@docker push $(K3S_REGISTRY)/$(UI_IMAGE) || { echo "[FAIL] Failed to push. Is registry running?"; exit 1; }
+	@echo "[OK] Images pushed!"
+
+# Platform-agnostic build wrapper
+k8s-build:
+	@$(MAKE) k8s-build-$(K8S_PLATFORM)
+
+# Deploy to Kubernetes (platform-aware)
 k8s-deploy: k8s-build
-	@echo "[K8S] Deploying to Kubernetes..."
-	@kubectl apply -f deployments/kubernetes/big-o-demo.yaml
+	@echo "[K8S] Deploying to Kubernetes ($(K8S_PLATFORM))..."
+	@kubectl apply -k deployments/kubernetes/overlays/$(K8S_PLATFORM)
 	@echo ""
 	@echo "[OK] Deployment submitted!"
 	@echo ""
@@ -354,10 +385,18 @@ k8s-deploy: k8s-build
 	@kubectl wait --for=condition=ready pod -l component=sorting-service -n big-o-demo --timeout=60s || true
 	@kubectl wait --for=condition=ready pod -l app=prometheus -n big-o-demo --timeout=60s || true
 	@kubectl wait --for=condition=ready pod -l app=grafana -n big-o-demo --timeout=60s || true
+	@kubectl wait --for=condition=ready pod -l app=ui -n big-o-demo --timeout=60s || true
 	@echo ""
-	@echo "[INFO] Access points:"
-	@echo "   UI:      http://localhost:30301 (Interactive demo)"
-	@echo "   Grafana: http://localhost:30300 (Dashboards, admin/admin)"
+	@if [ "$(K8S_PLATFORM)" = "kind" ]; then \
+		echo "[INFO] Access points (kind - NodePort):"; \
+		echo "   UI:      http://localhost:30301"; \
+		echo "   Grafana: http://localhost:30300 (admin/admin)"; \
+	elif [ "$(K8S_PLATFORM)" = "k3s" ]; then \
+		echo "[INFO] Access points (k3s - Ingress):"; \
+		echo "   UI:         http://ui.localhost"; \
+		echo "   Grafana:    http://grafana.localhost (admin/admin)"; \
+		echo "   Prometheus: http://prom.localhost"; \
+	fi
 	@echo ""
 	@echo "[INFO] Useful commands:"
 	@echo "   Check status:     make k8s-status"
@@ -365,10 +404,10 @@ k8s-deploy: k8s-build
 	@echo "   Port-forward:     make k8s-port-forward"
 	@echo "   Delete all:       make k8s-delete"
 
-# Delete Kubernetes resources
+# Delete Kubernetes resources (platform-aware)
 k8s-delete:
-	@echo "[K8S] Deleting Kubernetes resources..."
-	@kubectl delete -f deployments/kubernetes/big-o-demo.yaml --ignore-not-found=true
+	@echo "[K8S] Deleting Kubernetes resources ($(K8S_PLATFORM))..."
+	@kubectl delete -k deployments/kubernetes/overlays/$(K8S_PLATFORM) --ignore-not-found=true
 	@echo "[OK] Resources deleted!"
 
 # Check Kubernetes deployment status
@@ -449,13 +488,18 @@ demo-screen: run-screen
 	@echo "[DEMO] Local demo running in screen!"
 	@echo "   Open UI: http://localhost:$(UI_PORT)"
 
-# Quick Kubernetes demo
-# Essentially just k8s-deploy + some instrictions
+# Quick Kubernetes demo (platform-aware)
 demo-k8s: k8s-deploy
 	@echo ""
-	@echo "[DEMO] Kubernetes demo running!"
-	@echo "   Open UI: http://localhost:30301"
-	@echo "   Open Grafana: http://localhost:30300"
+	@echo "[DEMO] Kubernetes demo running ($(K8S_PLATFORM))!"
+	@if [ "$(K8S_PLATFORM)" = "kind" ]; then \
+		echo "   Open UI: http://localhost:30301"; \
+		echo "   Open Grafana: http://localhost:30300"; \
+	elif [ "$(K8S_PLATFORM)" = "k3s" ]; then \
+		echo "   Open UI: http://ui.localhost"; \
+		echo "   Open Grafana: http://grafana.localhost"; \
+		echo "   Open Prometheus: http://prom.localhost"; \
+	fi
 	@echo "   Login: admin/admin"
 
 
@@ -505,7 +549,9 @@ help:
 	@echo "   make demo              Quick Docker demo"
 	@echo ""
 	@echo "--- Kubernetes ---"
-	@echo "   make k8s-build         Build images for Kubernetes"
+	@echo "   make k8s-build         Build images (platform: $(K8S_PLATFORM))"
+	@echo "   make k8s-build-kind    Build images for kind"
+	@echo "   make k8s-build-k3s     Build + push images for k3s"
 	@echo "   make k8s-deploy        Deploy to Kubernetes"
 	@echo "   make k8s-delete        Delete Kubernetes resources"
 	@echo "   make k8s-status        Check deployment status"
@@ -516,6 +562,9 @@ help:
 	@echo "   make k8s-port-forward  Port-forward to Grafana"
 	@echo "   make k8s-restart       Restart deployment"
 	@echo "   make demo-k8s          Quick Kubernetes demo"
+	@echo ""
+	@echo "   Platform selection: K8S_PLATFORM=kind (default) or k3s"
+	@echo "   Example: K8S_PLATFORM=k3s make k8s-deploy"
 	@echo ""
 	@echo "--- Code Quality ---"
 	@echo "   make fmt               Format code"

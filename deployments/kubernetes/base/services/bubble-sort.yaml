@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bubble-sort
+  labels:
+    app: bubble-sort
+    algorithm: bubble
+spec:
+  type: ClusterIP
+  selector:
+    app: bubble-sort
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http

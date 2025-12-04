@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: big-o-demo
+  labels:
+    app: big-o-demo
+    purpose: educational

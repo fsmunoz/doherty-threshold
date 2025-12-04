@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: big-o-demo
+
+resources:
+  - namespace.yaml
+  - configmaps/prometheus-config.yaml
+  - configmaps/grafana-datasource.yaml
+  - configmaps/grafana-dashboard-provider.yaml
+  - configmaps/grafana-dashboard-json.yaml
+  - deployments/bubble-sort.yaml
+  - deployments/merge-sort.yaml
+  - deployments/ui.yaml
+  - deployments/prometheus.yaml
+  - deployments/grafana.yaml
+  - services/bubble-sort.yaml
+  - services/merge-sort.yaml
+  - services/ui.yaml
+  - services/prometheus.yaml
+  - services/grafana.yaml

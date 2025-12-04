@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: merge-sort
+spec:
+  template:
+    spec:
+      containers:
+      - name: merge-sort
+        image: merge-sort:latest
+        imagePullPolicy: Never

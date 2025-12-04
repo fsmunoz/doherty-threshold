@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: merge-sort
+spec:
+  template:
+    spec:
+      containers:
+      - name: merge-sort
+        image: localhost:5000/merge-sort:latest
+        imagePullPolicy: IfNotPresent

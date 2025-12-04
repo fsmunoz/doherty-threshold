@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bubble-sort
+spec:
+  template:
+    spec:
+      containers:
+      - name: bubble-sort
+        image: localhost:5000/bubble-sort:latest
+        imagePullPolicy: IfNotPresent

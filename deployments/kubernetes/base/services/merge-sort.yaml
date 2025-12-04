@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: merge-sort
+  labels:
+    app: merge-sort
+    algorithm: merge
+spec:
+  type: ClusterIP
+  selector:
+    app: merge-sort
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http

@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+patchesStrategicMerge:
+  - patches/bubble-sort-image.yaml
+  - patches/merge-sort-image.yaml
+  - patches/ui-image.yaml
+  - patches/grafana-nodeport.yaml
+  - patches/ui-nodeport.yaml
